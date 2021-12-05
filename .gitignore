@@ -3,3 +3,6 @@ errorlog.txt
 main
 value_test
 value_test.cpp
+a.out
+/build/
+/.vscode/
