@@ -9,12 +9,13 @@ Expression Solver is a C++ program that solves algebraic expressions.
 exp_solver::ExpSoler exp;
 // calculate simple expression
 auto output = exp.SolveExp("1+1") // will be 2
-// symbol like python, see https://docs.python.org/zh-cn/3.7/reference/expressions.html#operator-precedence
-// Calculate basic expressions using symbols '+', '-', '*', '/', '**', '%', 
+// symbol like python, 
+// see https://docs.python.org/zh-cn/3.7/reference/expressions.html#operator-precedence
+// Calculate basic expressions using symbols '+', '-', '*', '/', '//', '**', '%', 
 // bit operator '|', '&', '^', '<<', '>>', 
 // brackets '(', ')' and numbers
-// priority high to low:  { "**" }, { "~" }, { "*", "/", "//", "%" }, { "+", "-" }, { "<<", ">>" }, { "&" },
-//   { "^" },  { "|" }
+// priority high to low:  { "**" }, { "~" }, { "*", "/", "//", "%" }, { "+", "-" }, 
+// { "<<", ">>" }, { "&" }, { "^" },  { "|" }
 output = exp.SolveExp("1+((2-3*4)/5)**6%4") // will be 1
 // Maintain values in fractions until non-fractions break in
 output = exp.SolveExp("0.5+1/3") // will be 0.833333
@@ -45,15 +46,15 @@ error = exp.GetErrorMessages() // `String "undefined" not recognized!`
 output = exp.SolveExp("sqrt()") // wil be empty
 error = exp.GetErrorMessages() // `Invalid expression!`
 
-// Arithmatic errors
+// Arithmetic errors
 output = exp.SolveExp("10/(floor(pi)-3)") // wil be empty
-error = exp.GetErrorMessages() // `Arithmatic error: Denominator is zero!`  
+error = exp.GetErrorMessages() // `Arithmetic error: Denominator is zero!`  
 
 output = exp.SolveExp("-1^1.5") // wil be empty
-error = exp.GetErrorMessages() // `Arithmatic error: Can't power a negative number by a non-integer!`
+error = exp.GetErrorMessages() // `Arithmetic error: Can't power a negative number by a non-integer!`
 
 output = exp.SolveExp("sqrt(-1)") // wil be empty 
-error = exp.GetErrorMessages() // `Arithmatic error: Cannot square root a negative number!`
+error = exp.GetErrorMessages() // `Arithmetic error: Cannot square root a negative number!`
 
 // Syntax errors
 output = exp.SolveExp("2=2=2") // wil be empty
@@ -92,12 +93,12 @@ Spaces are ignored
 
 Negative priority is larger than **
 > Example: `-2**4`
-> Expect by python: -16
+> Expect by python: -16  
 > But here output is: 16
 
 `--` symbol will be valid
 > Example: `--1+1`
-> Will be output: `2`
+> Will be output: `2`  
 > Because it will be replace to `0-(0-1)+1` first
 
 ## Use in Cmake

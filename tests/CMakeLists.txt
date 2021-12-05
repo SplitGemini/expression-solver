@@ -23,5 +23,3 @@ set_target_properties(exp_solver_test
     PROPERTIES
         CXX_STANDARD 17
 )
-target_compile_definitions(exp_solver_test PRIVATE NDEBUG)
-
