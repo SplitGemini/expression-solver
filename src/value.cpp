@@ -74,13 +74,8 @@ Value::Value(const string &str) {
 #endif
     auto found = str.find('.');
     if (found != string::npos) {
-#if __cplusplus >= 201703L
-        auto left  = std::string_view{ str }.substr(0, found);
-        auto right = std::string_view{ str }.substr(found + 1);
-#else
-        string left  = str.substr(0, found);
-        string right = str.substr(found + 1);
-#endif
+        auto left  = str.substr(0, found);
+        auto right = str.substr(found + 1);
 
         if (left.length() >= 15) {
             *this = Value();

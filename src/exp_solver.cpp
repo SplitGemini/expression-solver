@@ -301,9 +301,9 @@ BlockType ExpSolver::Char2Type(char c) {
 
 // prefix with sym_char replace to (0-)
 // example expression: "-2*3" and "3*-2", will replace to "(0-2)*3" and "3*(0-2)"
-static const std::regex negative_pattern{ "([+\\-*\\/^%&|<>~]|^)(-[\\d.]+)" };
+static const std::regex negative_pattern{ R"(([+\-*\/^%&|<>~]|^)(-[\\d.]+))" };
 // "-(1+1)" -> "0-(1+1)", "(-2)+1" -> "(0-2)+1"
-static const std::regex negative_pattern2{ "(\\(|^)(?=-(?:[\\d.]+|\\())" };
+static const std::regex negative_pattern2{ R"((\(|^)(?=-(?:[\d(])))" };
 
 // Replace every "-" as negative sign by "0-"
 void ExpSolver::DealWithNegativeSign(string &exp) {
