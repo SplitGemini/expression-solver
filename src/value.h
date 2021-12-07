@@ -15,6 +15,11 @@ fraction or decimal format.
 #include <iostream>
 #include <string>
 
+#if __cplusplus >= 201703L
+#include <string_view>
+#include <charconv>
+#endif
+
 #ifndef EXP_SOLVER_DEBUG
 #define EXP_SOLVER_DEBUG 0
 #endif // !EXP_SOLVER_DEBUG
@@ -35,6 +40,9 @@ public:
     Value(const Value &);
     Value &operator=(const Value &z);
 
+#if __cplusplus >= 201703L
+    Value(const std::string_view &str);
+#endif
     Value(const std::string &str);
     Value(Fraction fv);
     Value(double dv);
@@ -81,6 +89,9 @@ public:
 
 private:
     friend class ExpSolver;
+#if __cplusplus >= 201703L
+    Value &operate(const std::string_view &op, const Value &b);
+#endif
     Value &     operate(const std::string &op, const Value &b);
     bool        isDecimal;
     bool        isInterger;

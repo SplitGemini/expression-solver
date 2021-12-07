@@ -11,7 +11,6 @@ add_executable(exp_solver_simple simple_test.cpp)
 target_link_libraries(exp_solver_simple 
     PRIVATE 
         libexp_solver
-        #profiler
 )
 
 add_executable(exp_solver_test unit_tests.cpp)

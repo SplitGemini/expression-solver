@@ -57,8 +57,8 @@ output = exp.SolveExp("sqrt(-1)") // wil be empty
 error = exp.GetErrorMessages() // `Arithmetic error: Cannot square root a negative number!`
 
 // Syntax errors
-output = exp.SolveExp("2=2=2") // wil be empty
-error = exp.GetErrorMessages() // `Syntax error: Too many '='!`  
+output = exp.SolveExp("a=2") // wil be empty
+error = exp.GetErrorMessages() // `Encountered unknown character at =!`  
 
 output = exp.SolveExp("sqrt(exp(2+log(10))") // wil be empty
 error = exp.GetErrorMessages() // `Syntax error: Brackets not paired!`  
@@ -69,13 +69,9 @@ error = exp.GetErrorMessages() // `Syntax Error: Need brackets after function na
 
 ## Limitations
 
-Precision error
-> Example: `sin(pi*2)`  
-> Output: `Ans = 0.000001`
-
 Out-of-bound error
-> Example: `10^18`  
-> Output: `-2147483648`
+> Example: `10^19`  
+> Output: `-9223372036854775808`
 
 Any other error that I happen to miss
 > Example: `<Some magical expression>`  
@@ -103,7 +99,7 @@ Negative priority is larger than **
 
 ## Use in Cmake
 
-add source to your project and add `target_link_libraries(exp_solver_test PRIVATE libexp_solver)`  
+add source to your project and add `target_link_libraries(target PRIVATE libexp_solver)`  
 to your CMakeLists.txt to add library(default is static library)
 
 ## Use

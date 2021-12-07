@@ -17,6 +17,12 @@ strings and solves them.
 #include <algorithm>
 #include <iomanip>
 #include <regex>
+
+#if __cplusplus >= 201703L
+#include <string_view>
+#include <charconv>
+#endif
+
 #include <cctype>
 #include <cmath>
 
@@ -157,14 +163,25 @@ void ExpSolver::AddPredefined() {
 
 // reference: https://docs.python.org/zh-cn/3.7/reference/expressions.html#operator-precedence
 // The smaller the ordinal, the higher the priority
+#if __cplusplus >= 201703L
+static const vector<vector<std::string_view>> sym_priority_vec{
+    { "**" }, { "~" }, { "*", "/", "//", "%" }, { "+", "-" }, { "<<", ">>" }, { "&" },
+    { "^" },  { "|" }
+};
+#else
 static const vector<vector<string>> sym_priority_vec = {
     { "**" }, { "~" }, { "*", "/", "//", "%" }, { "+", "-" }, { "<<", ">>" }, { "&" },
     { "^" },  { "|" }
 };
+#endif
 
 static void SetPriority(const string &exp, Block &block) {
     if (block.type != BlockType::Sym) return;
+#if __cplusplus >= 201703L
+    auto sym = std::string_view{ exp }.substr(block.start, block.end - block.start);
+#else
     auto sym = exp.substr(block.start, block.end - block.start);
+#endif
     for (size_t i = 0; i < sym_priority_vec.size(); i++) {
         bool found = false;
         for (size_t k = 0; k < sym_priority_vec[i].size(); k++) {
@@ -260,7 +277,11 @@ BlockType ExpSolver::AnalyzeStrType(const string &str) {
     return Nil;
 }
 
+#if __cplusplus >= 201703L
+static constexpr std::string_view sym_char{ "+-*/^%&|<>~" };
+#else
 static const string sym_char{ "+-*/^%&|<>~" };
+#endif
 
 // Determine the type of one single character
 BlockType ExpSolver::Char2Type(char c) {
@@ -303,8 +324,14 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
     std::stack<Block> ops;
 
     for (int i = endBlock - 1; i >= startBlock; i--) {
-        // Record the content of the current block
+// Record the content of the current block
+#if __cplusplus >= 201703L
+        std::string_view blockStr =
+            std::string_view{ exp }.substr(blocks[i].start, blocks[i].end - blocks[i].start);
+#else
         string blockStr = exp.substr(blocks[i].start, blocks[i].end - blocks[i].start);
+#endif
+
 
         // Variable to prepare for skipping items inside the for loop
         // When this method is recursively called to calculate in-bracket contents
@@ -324,37 +351,33 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
 
         // Replace constants with Value
         else if (blocks[i].type == Constant) {
-            Value constValue;
             for (size_t i = 0; i < constants.size(); i++) {
                 if (blockStr.compare(constants[i].name) == 0) {
-                    constValue = constants[i].value;
-
                     // If constant doesn't have a value
                     // that means that 'ans' is not defined
-                    if (!constValue.IsCalculable()) {
-                        error_messages
-                            << "Bad access: \"" << constants[i].name
-                            << "\" not defined currently! cuz: " << constValue.GetErrorMessage()
-                            << std::endl;
+                    if (!constants[i].value.IsCalculable()) {
+                        error_messages << "Bad access: \"" << constants[i].name
+                                       << "\" not defined currently! cuz: "
+                                       << constants[i].value.GetErrorMessage() << std::endl;
                         return {};
+                    } else {
+                        values.push(constants[i].value);
                     }
-
                     break;
                 }
             }
-            values.push(constValue);
+
         }
 
         // Replace values with Value
         else if (blocks[i].type == Var) {
-            Value varValue;
             for (size_t i = 0; i < variables.size(); i++) {
                 if (blockStr.compare(variables[i].name) == 0) {
-                    varValue = variables[i].value;
+                    values.emplace(variables[i].value);
                     break;
                 }
             }
-            values.push(varValue);
+
         }
 
         // Recursively solve expression inside brackets
@@ -365,8 +388,15 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
             if (corBlock != 0 && blocks[corBlock - 1].type == Func) {
                 // Find the function and calculate the result of the function.
                 double (*funcToUse)(double);
+#if __cplusplus >= 201703L
+                auto funcName = std::string_view{ exp }.substr(blocks[corBlock - 1].start,
+                                                               blocks[corBlock - 1].end
+                                                                   - blocks[corBlock - 1].start);
+#else
                 string funcName = exp.substr(blocks[corBlock - 1].start,
                                              blocks[corBlock - 1].end - blocks[corBlock - 1].start);
+#endif
+
                 for (size_t i = 0; i < functions.size(); i++) {
                     if (funcName.compare(functions[i].name) == 0) {
                         funcToUse = functions[i].func;
@@ -404,7 +434,12 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
                 if (ops.top().priority < priority) {
                     auto op = ops.top();
                     ops.pop();
+#if __cplusplus >= 201703L
+                    auto currentBlock = std::string_view{ exp }.substr(op.start, op.end - op.start);
+#else
                     auto currentBlock = exp.substr(op.start, op.end - op.start);
+#endif
+
                     // need pop 2 value
                     if (currentBlock != "~") {
                         Value v1 = values.top();
@@ -449,7 +484,12 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
         auto op = ops.top();
         ops.pop();
         // Record the content of the current block
+
+#if __cplusplus >= 201703L
+        auto currentBlock = std::string_view{ exp }.substr(op.start, op.end - op.start);
+#else
         string currentBlock = exp.substr(op.start, op.end - op.start);
+#endif
 
         if (currentBlock != "~") {
             if (values.empty()) {

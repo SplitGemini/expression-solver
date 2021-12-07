@@ -15,5 +15,4 @@ target_include_directories(libexp_solver
 set_target_properties(libexp_solver 
     PROPERTIES
         OUTPUT_NAME exp_solver
-        CXX_STANDARD 17
 )
