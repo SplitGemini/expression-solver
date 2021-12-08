@@ -61,17 +61,20 @@ Value::Value(double dv) {
     decValue      = dv;
     calculability = true;
 }
-#if __cplusplus >= 201703L
+
+#ifdef EXP_HAS_STRING_VIEW
 Value::Value(const string &str) {
     *this = Value(std::string_view{ str });
 }
 #endif
 
-#if __cplusplus >= 201703L
+
+#ifdef EXP_HAS_STRING_VIEW
 Value::Value(const std::string_view &str) {
 #else
 Value::Value(const string &str) {
 #endif
+
     auto found = str.find('.');
     if (found != string::npos) {
         auto left  = str.substr(0, found);
@@ -85,14 +88,14 @@ Value::Value(const string &str) {
         size_t pos_of_not_zero;
         // remove all suffix zero
         if (std::all_of(right.begin(), right.end(), [](char c) { return c == '0'; })) {
-#if __cplusplus >= 201703L
+#ifdef EXP_HAS_STRING_VIEW
             right.remove_suffix(right.size());
 #else
             right.clear();
 #endif
 
         } else if ((pos_of_not_zero = right.find_last_not_of("0")) != string::npos) {
-#if __cplusplus >= 201703L
+#ifdef EXP_HAS_STRING_VIEW
             right.remove_suffix(pos_of_not_zero + 1);
 #else
             right.erase(pos_of_not_zero + 1);
@@ -103,12 +106,15 @@ Value::Value(const string &str) {
         if (right.length() == 0) {
             isInterger = true;
 
-#if __cplusplus >= 201703L
+
+#ifdef EXP_HAS_STRING_VIEW
             int64_t num;
             std::from_chars(right.data(), right.data() + right.size(), num);
 #else
             auto num        = std::stol(left);
 #endif
+
+
             *this = Value(Fraction(num, 1));
             return;
 
@@ -118,13 +124,17 @@ Value::Value(const string &str) {
                 Value();
                 return;
             }
-#if __cplusplus >= 201703L
+
+
+#ifdef EXP_HAS_STRING_VIEW
             int64_t leftNumber, rightNumber;
             std::from_chars(left.data(), left.data() + left.size(), leftNumber);
             std::from_chars(right.data(), right.data() + right.size(), rightNumber);
 #else
             auto leftNumber = stoi(left), rightNumber = stoi(right);
 #endif
+
+
             int multiplier = pow(10.0, (floor)(log10(rightNumber)) + 1.0);
             *this          = Value(Fraction(leftNumber * multiplier + rightNumber, multiplier));
             return;
@@ -133,7 +143,8 @@ Value::Value(const string &str) {
             isDecimal = true;
             fracValue = Fraction();
 
-#if __cplusplus >= 201703L
+#ifdef EXP_HAS_STRING_VIEW
+            // from_chars not implement to double
             decValue = stod(string{ str });
 #else
             decValue = stod(str);
@@ -143,7 +154,9 @@ Value::Value(const string &str) {
             return;
         }
     }
-#if __cplusplus >= 201703L
+
+
+#ifdef EXP_HAS_STRING_VIEW
     int num;
     std::from_chars(str.data(), str.data() + str.size(), num);
     *this = Value(Fraction(num, 1));
@@ -199,13 +212,13 @@ double Value::GetValueDouble() const {
     return decValue;
 }
 
-#if __cplusplus >= 201703L
+#ifdef EXP_HAS_STRING_VIEW
 Value &Value::operate(const std::string &op, const Value &b) {
     return operate(std::string_view{ op }, b);
 }
 #endif
 
-#if __cplusplus >= 201703L
+#ifdef EXP_HAS_STRING_VIEW
 Value &Value::operate(const std::string_view &op, const Value &b) {
 #else
 Value &Value::operate(const std::string &op, const Value &b) {

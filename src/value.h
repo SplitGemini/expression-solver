@@ -14,15 +14,7 @@ fraction or decimal format.
 #pragma once
 #include <iostream>
 #include <string>
-
-#if __cplusplus >= 201703L
-#include <string_view>
-#include <charconv>
-#endif
-
-#ifndef EXP_SOLVER_DEBUG
-#define EXP_SOLVER_DEBUG 0
-#endif // !EXP_SOLVER_DEBUG
+#include "exp_config.h"
 
 namespace exp_solver
 {
@@ -40,7 +32,7 @@ public:
     Value(const Value &);
     Value &operator=(const Value &z);
 
-#if __cplusplus >= 201703L
+#if defined(EXP_HAS_STRING_VIEW)
     Value(const std::string_view &str);
 #endif
     Value(const std::string &str);
@@ -89,7 +81,7 @@ public:
 
 private:
     friend class ExpSolver;
-#if __cplusplus >= 201703L
+#if defined(EXP_HAS_STRING_VIEW)
     Value &operate(const std::string_view &op, const Value &b);
 #endif
     Value &     operate(const std::string &op, const Value &b);

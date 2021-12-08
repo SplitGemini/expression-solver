@@ -18,11 +18,6 @@ strings and solves them.
 #include <iomanip>
 #include <regex>
 
-#if __cplusplus >= 201703L
-#include <string_view>
-#include <charconv>
-#endif
-
 #include <cctype>
 #include <cmath>
 
@@ -163,7 +158,7 @@ void ExpSolver::AddPredefined() {
 
 // reference: https://docs.python.org/zh-cn/3.7/reference/expressions.html#operator-precedence
 // The smaller the ordinal, the higher the priority
-#if __cplusplus >= 201703L
+#ifdef EXP_HAS_STRING_VIEW
 static const vector<vector<std::string_view>> sym_priority_vec{
     { "**" }, { "~" }, { "*", "/", "//", "%" }, { "+", "-" }, { "<<", ">>" }, { "&" },
     { "^" },  { "|" }
@@ -177,7 +172,7 @@ static const vector<vector<string>> sym_priority_vec = {
 
 static void SetPriority(const string &exp, Block &block) {
     if (block.type != BlockType::Sym) return;
-#if __cplusplus >= 201703L
+#ifdef EXP_HAS_STRING_VIEW
     auto sym = std::string_view{ exp }.substr(block.start, block.end - block.start);
 #else
     auto sym = exp.substr(block.start, block.end - block.start);
@@ -277,7 +272,7 @@ BlockType ExpSolver::AnalyzeStrType(const string &str) {
     return Nil;
 }
 
-#if __cplusplus >= 201703L
+#ifdef EXP_HAS_STRING_VIEW
 static constexpr std::string_view sym_char{ "+-*/^%&|<>~" };
 #else
 static const string sym_char{ "+-*/^%&|<>~" };
@@ -301,7 +296,7 @@ BlockType ExpSolver::Char2Type(char c) {
 
 // prefix with sym_char replace to (0-)
 // example expression: "-2*3" and "3*-2", will replace to "(0-2)*3" and "3*(0-2)"
-static const std::regex negative_pattern{ R"(([+\-*\/^%&|<>~]|^)(-[\\d.]+))" };
+static const std::regex negative_pattern{ R"(([+\-*\/^%&|<>~]|^)(-[\d.]+))" };
 // "-(1+1)" -> "0-(1+1)", "(-2)+1" -> "(0-2)+1"
 static const std::regex negative_pattern2{ R"((\(|^)(?=-(?:[\d(])))" };
 
@@ -325,7 +320,7 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
 
     for (int i = endBlock - 1; i >= startBlock; i--) {
 // Record the content of the current block
-#if __cplusplus >= 201703L
+#ifdef EXP_HAS_STRING_VIEW
         std::string_view blockStr =
             std::string_view{ exp }.substr(blocks[i].start, blocks[i].end - blocks[i].start);
 #else
@@ -388,7 +383,7 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
             if (corBlock != 0 && blocks[corBlock - 1].type == Func) {
                 // Find the function and calculate the result of the function.
                 double (*funcToUse)(double);
-#if __cplusplus >= 201703L
+#ifdef EXP_HAS_STRING_VIEW
                 auto funcName = std::string_view{ exp }.substr(blocks[corBlock - 1].start,
                                                                blocks[corBlock - 1].end
                                                                    - blocks[corBlock - 1].start);
@@ -434,7 +429,7 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
                 if (ops.top().priority < priority) {
                     auto op = ops.top();
                     ops.pop();
-#if __cplusplus >= 201703L
+#ifdef EXP_HAS_STRING_VIEW
                     auto currentBlock = std::string_view{ exp }.substr(op.start, op.end - op.start);
 #else
                     auto currentBlock = exp.substr(op.start, op.end - op.start);
@@ -470,10 +465,6 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
     }
 
     // Final calculation not containing any bracket
-    // if (values.size() != ops.size() + 1) {
-    //     error_messages << "Invalid expression! " << std::endl;
-    //     return {};
-    // }
 #if EXP_SOLVER_DEBUG
     std::cout << "remained" << std::endl;
 #endif // EXP_SOLVER_DEBUG
@@ -485,7 +476,7 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
         ops.pop();
         // Record the content of the current block
 
-#if __cplusplus >= 201703L
+#ifdef EXP_HAS_STRING_VIEW
         auto currentBlock = std::string_view{ exp }.substr(op.start, op.end - op.start);
 #else
         string currentBlock = exp.substr(op.start, op.end - op.start);
