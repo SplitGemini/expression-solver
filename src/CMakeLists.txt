@@ -16,3 +16,7 @@ set_target_properties(libexp_solver
     PROPERTIES
         OUTPUT_NAME exp_solver
 )
+
+if(NOT EXP_SOLVER_MAIN_PROJECT)
+    target_compile_definitions(libexp_solver PUBLIC EXP_SOLVER_DEBUG=0)
+endif()
