@@ -211,3 +211,6 @@ TabWidth: 4
 
 # 使用tab字符: Never, ForIndentation, ForContinuationAndIndentation, Always
 UseTab: Never
+
+# 宏缩进对齐
+IndentPPDirectives: AfterHash

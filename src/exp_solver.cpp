@@ -437,8 +437,16 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
 
                     // need pop 2 value
                     if (currentBlock != "~") {
+                        if (values.empty()) {
+                            error_messages << "Invalid expression! ";
+                            return {};
+                        }
                         Value v1 = values.top();
                         values.pop();
+                        if (values.empty()) {
+                            error_messages << "Invalid expression! ";
+                            return {};
+                        }
                         Value v2 = values.top();
 #if EXP_SOLVER_DEBUG
                         std::cout << v1 << currentBlock << v2 << std::endl;
@@ -446,6 +454,10 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
                         values.pop();
                         values.push(v1.operate(currentBlock, v2));
                     } else {
+                        if (values.empty()) {
+                            error_messages << "Invalid expression! ";
+                            return {};
+                        }
                         // Negate op, pop one value
                         Value v1 = values.top();
                         values.pop();
