@@ -109,7 +109,7 @@ Value::Value(const string &str) {
 
 #ifdef EXP_HAS_STRING_VIEW
             int64_t num;
-            std::from_chars(right.data(), right.data() + right.size(), num);
+            std::from_chars(left.data(), left.data() + left.size(), num);
 #else
             auto num        = std::stol(left);
 #endif
