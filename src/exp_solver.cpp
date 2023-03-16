@@ -59,8 +59,6 @@ Value ExpSolver::ResolveExp() {
                        << (value_error.empty() ? "" : (", cuz: " + value_error)) << std::endl;
         return {};
     }
-
-    return {};
 }
 
 Value ExpSolver::SolveExp(const string &input) {
@@ -107,8 +105,6 @@ Value ExpSolver::SolveExp(const string &input) {
                        << (value_error.empty() ? "" : (", cuz: " + value_error)) << std::endl;
         return {};
     }
-
-    return {};
 }
 
 
@@ -347,7 +343,7 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
         // Replace constants with Value
         else if (blocks[i].type == Constant) {
             for (size_t i = 0; i < constants.size(); i++) {
-                if (blockStr.compare(constants[i].name) == 0) {
+                if (blockStr == constants[i].name) {
                     // If constant doesn't have a value
                     // that means that 'ans' is not defined
                     if (!constants[i].value.IsCalculable()) {
@@ -400,6 +396,7 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
                 }
                 Value valueInFunc = CalculateExp(exp, corBlock + 1, i);
                 if (!valueInFunc.IsCalculable()) {
+                    error_messages << valueInFunc.GetErrorMessage() << std::endl;
                     return {};
                 } else if (valueInFunc.GetValueDouble() < 0 && funcName.compare("sqrt") == 0) {
                     error_messages << "Arithmetic error: Cannot square root a negative number! "
@@ -501,12 +498,22 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
             }
             Value v1 = values.top();
             values.pop();
+            if (!v1.IsCalculable()) {
+                error_messages << v1.GetErrorMessage() << "\n";
+                error_messages << "Invalid expression! ";
+                return {};
+            }
             if (values.empty()) {
                 error_messages << "Invalid expression! ";
                 return {};
             }
             Value v2 = values.top();
             values.pop();
+            if (!v2.IsCalculable()) {
+                error_messages << v2.GetErrorMessage() << "\n";
+                error_messages << "Invalid expression! ";
+                return {};
+            }
 
 #if EXP_SOLVER_DEBUG
             std::cout << v1 << currentBlock << v2 << std::endl;

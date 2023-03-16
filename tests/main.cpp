@@ -29,12 +29,14 @@ int main() {
         cout << "| >> ";
 
         getline(cin, input);
-        if (input == "quit") break;
+        if (input == "quit" || input == "q") break;
 
-        cout << "| ";
-
-        string output = mySolver.SolveExp(input).GetValueStr();
-        cout << output << endl << endl;
+        auto value = mySolver.SolveExp(input);
+        if (value.IsCalculable()) {
+            cout << "| " << value.GetValueStr() << endl;
+        } else {
+            cout << "err: " << mySolver.GetErrorMessages() << endl << endl;
+        }
     }
     return 0;
 }

@@ -201,7 +201,7 @@ bool Value::IsCalculable() const {
 
 string Value::GetValueStr() const {
     if (!calculability) return "";
-    if (fracValue.down == 1 || fracValue.up == 0) {
+    if (!isDecimal && (fracValue.down == 1 || fracValue.up == 0)) {
         return std::to_string(fracValue.up);
     } else {
         return std::to_string(decValue);
@@ -258,7 +258,7 @@ Value &Value::operate(const std::string &op, const Value &b) {
     }
 
 #if EXP_SOLVER_DEBUG
-    std::cout << "result: :" << decValue << std::endl;
+    std::cout << "result: " << decValue << std::endl;
 #endif // EXP_SOLVER_DEBUG
 
     return *this;

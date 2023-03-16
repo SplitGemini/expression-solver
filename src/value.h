@@ -44,7 +44,6 @@ public:
     bool IsCalculable() const;
     // Getters
     Fraction    GetFracValue() const;
-    std::string GetErrorMessage() const;
     std::string GetValueStr() const;
     double      GetValueDouble() const;
 
@@ -81,10 +80,15 @@ public:
 
 private:
     friend class ExpSolver;
+
 #if defined(EXP_HAS_STRING_VIEW)
     Value &operate(const std::string_view &op, const Value &b);
 #endif
-    Value &     operate(const std::string &op, const Value &b);
+
+    Value &operate(const std::string &op, const Value &b);
+
+    std::string GetErrorMessage() const;
+
     bool        isDecimal;
     bool        isInterger;
     Fraction    fracValue;
