@@ -133,17 +133,22 @@ Value::Value(const string &str) {
 
 #ifdef EXP_HAS_STRING_VIEW
 
-            auto [_, ec] = std::from_chars(left.data(), left.data() + left.size(), leftNumber);
-            if (ec != std::errc()) {
-                error_messages += "Arithmetic Error: Convert to number fail! ";
-                *this = Value();
-                return;
+            {
+                auto [_, ec] = std::from_chars(left.data(), left.data() + left.size(), leftNumber);
+                if (ec != std::errc()) {
+                    error_messages += "Arithmetic Error: Convert to number fail! ";
+                    *this = Value();
+                    return;
+                }
             }
-            [ _, ec ] = std::from_chars(right.data(), right.data() + right.size(), rightNumber);
-            if (ec != std::errc()) {
-                error_messages += "Arithmetic Error: Convert to number fail! ";
-                *this = Value();
-                return;
+            {
+                auto [_, ec] =
+                    std::from_chars(right.data(), right.data() + right.size(), rightNumber);
+                if (ec != std::errc()) {
+                    error_messages += "Arithmetic Error: Convert to number fail! ";
+                    *this = Value();
+                    return;
+                }
             }
 #else
             try {
@@ -160,7 +165,7 @@ Value::Value(const string &str) {
             int multiplier = pow(10.0, (floor)(log10(rightNumber)) + 1.0);
             // leftNumber * multiplier must less than int32_t max
             // almost 2^16 / 2
-            *this          = Value(Fraction(leftNumber * multiplier + rightNumber, multiplier));
+            *this = Value(Fraction(leftNumber * multiplier + rightNumber, multiplier));
             return;
 
         } else { // use raw double
