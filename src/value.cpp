@@ -11,6 +11,8 @@ Description: Implementation of Value Class.
 */
 #include <algorithm>
 #include <cmath>
+#include <sstream>
+#include <iomanip>
 
 #include "value.h"
 
@@ -81,6 +83,9 @@ Value::Value(const string &str) {
             *this = Value();
             error_messages += "Arithmetic error: Number too large! ";
             return;
+        }
+        if(left.empty()){
+            left = "0";
         }
         size_t pos_of_not_zero{};
         // remove all suffix zero
@@ -188,7 +193,9 @@ string Value::GetValueStr() const {
     if (!isDecimal && (fracValue.down == 1 || fracValue.up == 0)) {
         return std::to_string(fracValue.up);
     } else {
-        return std::to_string(decValue);
+        std::ostringstream oss;
+        oss << std::setprecision(8) << std::noshowpoint << decValue;
+        return oss.str();
     }
 }
 

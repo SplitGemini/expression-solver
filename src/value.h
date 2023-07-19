@@ -41,6 +41,19 @@ public:
     explicit Value(Fraction fv);
     explicit Value(double dv);
 
+    template <typename T>
+    inline Value(T dv) {
+        static_assert(std::is_same<int32_t, T>() || std::is_same<uint32_t, T>()
+                          || std::is_same<int64_t, T>() || std::is_same<uint64_t, T>()
+                          || std::is_same<uint16_t, T>() || std::is_same<int16_t, T>(),
+                      "unsupported type");
+
+        isDecimal     = true;
+        fracValue     = Fraction();
+        decValue      = static_cast<double>(dv);
+        calculability = true;
+    }
+
     // Check properties
     bool IsDecimal() const;
     bool IsCalculable() const;
