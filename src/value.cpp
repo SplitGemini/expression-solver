@@ -30,13 +30,6 @@ Fraction::Fraction(int64_t u, int64_t d) : up(u), down(d) {
     }
 }
 
-Value::Value() :
-    isDecimal(false),
-    isInterger(false),
-    fracValue(Fraction()),
-    decValue(0.0),
-    calculability(false) {}
-
 Value::Value(Fraction fv) {
     if (fv.down == 0) {
         error_messages += "Arithmetic error: Denominator is zero! ";
@@ -84,9 +77,7 @@ Value::Value(const string &str) {
             error_messages += "Arithmetic error: Number too large! ";
             return;
         }
-        if(left.empty()){
-            left = "0";
-        }
+        if (left.empty()) { left = "0"; }
         size_t pos_of_not_zero{};
         // remove all suffix zero
         if (std::all_of(right.begin(), right.end(), [](char c) { return c == '0'; })) {
@@ -109,36 +100,66 @@ Value::Value(const string &str) {
         if (right.length() == 0) {
             isInterger = true;
 
-
-#ifdef EXP_HAS_STRING_VIEW
             int64_t num{};
-            std::from_chars(left.data(), left.data() + left.size(), num);
-#else
-            auto num        = std::stol(left);
-#endif
+#ifdef EXP_HAS_STRING_VIEW
 
+            auto [ptr, ec] = std::from_chars(left.data(), left.data() + left.size(), num);
+            if (ec != std::errc()) {
+                error_messages += "Arithmetic Error: Number too large! ";
+                *this = Value();
+                return;
+            }
+#else
+            try {
+                num = std::stol(left);
+            } catch (...) {
+                error_messages += "Arithmetic Error: Convert to number fail! ";
+                *this = Value();
+                return;
+            }
+#endif
 
             *this = Value(Fraction(num, 1));
             return;
 
-        } else if (right.length() <= 5) { // use fraction
+        } else if (left.length() + right.length() <= 8) { // use fraction
             if (right.find('.') != string::npos) {
                 error_messages += "Arithmetic Error: More than one '.' in a number! ";
-                Value();
+                *this = Value();
                 return;
             }
 
+            int64_t leftNumber{}, rightNumber{};
 
 #ifdef EXP_HAS_STRING_VIEW
-            int64_t leftNumber{}, rightNumber{};
-            std::from_chars(left.data(), left.data() + left.size(), leftNumber);
-            std::from_chars(right.data(), right.data() + right.size(), rightNumber);
+
+            auto [_, ec] = std::from_chars(left.data(), left.data() + left.size(), leftNumber);
+            if (ec != std::errc()) {
+                error_messages += "Arithmetic Error: Convert to number fail! ";
+                *this = Value();
+                return;
+            }
+            [ _, ec ] = std::from_chars(right.data(), right.data() + right.size(), rightNumber);
+            if (ec != std::errc()) {
+                error_messages += "Arithmetic Error: Convert to number fail! ";
+                *this = Value();
+                return;
+            }
 #else
-            auto leftNumber = stoi(left), rightNumber = stoi(right);
+            try {
+                leftNumber  = stoi(left);
+                rightNumber = stoi(right);
+            } catch (...) {
+                error_messages += "Arithmetic Error: Convert to number fail! ";
+                *this = Value();
+                return;
+            }
+
 #endif
 
-
             int multiplier = pow(10.0, (floor)(log10(rightNumber)) + 1.0);
+            // leftNumber * multiplier must less than int32_t max
+            // almost 2^16 / 2
             *this          = Value(Fraction(leftNumber * multiplier + rightNumber, multiplier));
             return;
 
@@ -150,7 +171,13 @@ Value::Value(const string &str) {
             // from_chars not implement to double
             decValue = stod(string{ str });
 #else
-            decValue = stod(str);
+            try {
+                decValue = stod(str);
+            } catch (...) {
+                error_messages += "Arithmetic Error: Convert to number fail! ";
+                *this = Value();
+                return;
+            }
 #endif
 
             calculability = true;
@@ -158,14 +185,26 @@ Value::Value(const string &str) {
         }
     }
 
-
-#ifdef EXP_HAS_STRING_VIEW
     int num{};
-    std::from_chars(str.data(), str.data() + str.size(), num);
+#ifdef EXP_HAS_STRING_VIEW
+
+    auto [_, ec] = std::from_chars(str.data(), str.data() + str.size(), num);
+    if (ec != std::errc()) {
+        error_messages += "Arithmetic Error: Convert to number fail! ";
+        *this = Value();
+        return;
+    }
     *this = Value(Fraction(num, 1));
 #else
     // normal interger
-    *this = Value(Fraction(stoi(str), 1));
+    try {
+        num = stoi(str);
+    } catch (...) {
+        error_messages += "Arithmetic Error: Convert to number fail! ";
+        *this = Value();
+        return;
+    }
+    *this = Value(Fraction(num, 1));
 #endif
 
     isInterger = true;
@@ -194,7 +233,7 @@ string Value::GetValueStr() const {
         return std::to_string(fracValue.up);
     } else {
         std::ostringstream oss;
-        oss << std::setprecision(8) << std::noshowpoint << decValue;
+        oss << std::setprecision(32) << std::noshowpoint << decValue;
         return oss.str();
     }
 }

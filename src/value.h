@@ -19,20 +19,25 @@ fraction or decimal format.
 namespace exp_solver
 {
 struct Fraction {
-    int64_t up, down;
-    Fraction() : up(0), down(1) {}
+    int64_t up{}, down{};
+    Fraction() : up(0), down(1){};
     Fraction(int64_t u, int64_t d);
+
+    Fraction(const Fraction &)            = default;
+    Fraction &operator=(const Fraction &) = default;
+    Fraction(Fraction &&)                 = default;
+    Fraction &operator=(Fraction &&)      = default;
 };
 
 class Value {
 public:
     // Constructors
-    Value();
+    Value() = default;
     // copy contructor
-    Value(const Value &)             = default;
-    Value &operator=(const Value &z) = default;
-    Value(Value &&)                  = default;
-    Value &operator=(Value &&)       = default;
+    Value(const Value &)            = default;
+    Value &operator=(const Value &) = default;
+    Value(Value &&)                 = default;
+    Value &operator=(Value &&)      = default;
 
 #if defined(EXP_HAS_STRING_VIEW)
     explicit Value(const std::string_view &str);
@@ -104,11 +109,11 @@ private:
 
     std::string GetErrorMessage() const;
 
-    bool        isDecimal;
-    bool        isInterger;
-    Fraction    fracValue;
-    double      decValue;
-    bool        calculability;
+    bool        isDecimal{ false };
+    bool        isInterger{ false };
+    Fraction    fracValue{};
+    double      decValue{ 0 };
+    bool        calculability{ false };
     std::string error_messages;
 };
 
