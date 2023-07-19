@@ -118,9 +118,9 @@ bool ExpSolver::AddOrEditConstant(const std::string &name, const Value &value) {
         error_messages << value.GetErrorMessage();
         return false;
     }
-    for (size_t i = 0; i < constants.size(); i++) {
-        if (name.compare(constants[i].name) == 0) {
-            constants[i].value = value;
+    for (auto &constant : constants) {
+        if (name.compare(constant.name) == 0) {
+            constant.value = value;
             return true;
         }
     }
@@ -255,14 +255,14 @@ bool ExpSolver::GroupExp(const string &exp) {
 
 // Analyze whether a string Block is of BlockType Func, Constant or Var
 BlockType ExpSolver::AnalyzeStrType(const string &str) {
-    for (size_t i = 0; i < functions.size(); i++) {
-        if (str.compare(functions[i].name) == 0) return Func;
+    for (auto &function : functions) {
+        if (str.compare(function.name) == 0) return Func;
     }
-    for (size_t i = 0; i < constants.size(); i++) {
-        if (str.compare(constants[i].name) == 0) return Constant;
+    for (auto &constant : constants) {
+        if (str.compare(constant.name) == 0) return Constant;
     }
-    for (size_t i = 0; i < variables.size(); i++) {
-        if (str.compare(variables[i].name) == 0) return Var;
+    for (auto &variable : variables) {
+        if (str.compare(variable.name) == 0) return Var;
     }
     error_messages << "String \"" << str << "\" not recognized! " << std::endl;
     return Nil;
@@ -342,17 +342,18 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
 
         // Replace constants with Value
         else if (blocks[i].type == Constant) {
-            for (size_t i = 0; i < constants.size(); i++) {
-                if (blockStr == constants[i].name) {
+            for (auto &constant : constants) {
+                if (blockStr == constant.name) {
                     // If constant doesn't have a value
                     // that means that 'ans' is not defined
-                    if (!constants[i].value.IsCalculable()) {
-                        error_messages << "Bad access: \"" << constants[i].name
-                                       << "\" not defined currently! cuz: "
-                                       << constants[i].value.GetErrorMessage() << std::endl;
+                    if (!constant.value.IsCalculable()) {
+                        error_messages
+                            << "Bad access: \"" << constant.name
+                            << "\" not defined currently! cuz: " << constant.value.GetErrorMessage()
+                            << std::endl;
                         return {};
                     } else {
-                        values.push(constants[i].value);
+                        values.push(constant.value);
                     }
                     break;
                 }
@@ -362,9 +363,9 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
 
         // Replace values with Value
         else if (blocks[i].type == Var) {
-            for (size_t i = 0; i < variables.size(); i++) {
-                if (blockStr.compare(variables[i].name) == 0) {
-                    values.emplace(variables[i].value);
+            for (auto &variable : variables) {
+                if (blockStr.compare(variable.name) == 0) {
+                    values.emplace(variable.value);
                     break;
                 }
             }
@@ -378,7 +379,7 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
             int corBlock = FindIndexOfBracketEnding(i);
             if (corBlock != 0 && blocks[corBlock - 1].type == Func) {
                 // Find the function and calculate the result of the function.
-                double (*funcToUse)(double);
+                double (*funcToUse)(double) = nullptr;
 #ifdef EXP_HAS_STRING_VIEW
                 auto funcName = std::string_view{ exp }.substr(blocks[corBlock - 1].start,
                                                                blocks[corBlock - 1].end
@@ -388,9 +389,9 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
                                              blocks[corBlock - 1].end - blocks[corBlock - 1].start);
 #endif
 
-                for (size_t i = 0; i < functions.size(); i++) {
-                    if (funcName.compare(functions[i].name) == 0) {
-                        funcToUse = functions[i].func;
+                for (auto &function : functions) {
+                    if (funcName.compare(function.name) == 0) {
+                        funcToUse = function.func;
                         break;
                     }
                 }
@@ -403,10 +404,16 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
                                    << std::endl;
                     return {};
                 }
-                double funcResult = (*funcToUse)(valueInFunc.GetValueDouble());
+                if (funcToUse) {
+                    double funcResult = (*funcToUse)(valueInFunc.GetValueDouble());
 
-                // Convert to Value and push to stack.
-                values.push(Value(funcResult));
+                    // Convert to Value and push to stack.
+                    values.push(Value(funcResult));
+                } else {
+                    error_messages << "Internal bug, function '" << funcName << "' not exists"
+                                   << std::endl;
+                    return {};
+                }
                 iIncrement -= i - corBlock + 1;
             } else {
                 // only recursive brace

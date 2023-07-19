@@ -29,15 +29,17 @@ public:
     // Constructors
     Value();
     // copy contructor
-    Value(const Value &);
-    Value &operator=(const Value &z);
+    Value(const Value &)             = default;
+    Value &operator=(const Value &z) = default;
+    Value(Value &&)                  = default;
+    Value &operator=(Value &&)       = default;
 
 #if defined(EXP_HAS_STRING_VIEW)
-    Value(const std::string_view &str);
+    explicit Value(const std::string_view &str);
 #endif
-    Value(const std::string &str);
-    Value(Fraction fv);
-    Value(double dv);
+    explicit Value(const std::string &str);
+    explicit Value(Fraction fv);
+    explicit Value(double dv);
 
     // Check properties
     bool IsDecimal() const;
@@ -82,7 +84,7 @@ private:
     friend class ExpSolver;
 
 #if defined(EXP_HAS_STRING_VIEW)
-    Value &operate(const std::string_view &op, const Value &b);
+    Value &operate(std::string_view op, const Value &b);
 #endif
 
     Value &operate(const std::string &op, const Value &b);

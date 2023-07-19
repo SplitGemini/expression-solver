@@ -63,11 +63,8 @@ Value::Value(double dv) {
 }
 
 #ifdef EXP_HAS_STRING_VIEW
-Value::Value(const string &str) {
-    *this = Value(std::string_view{ str });
-}
+Value::Value(const string &str) : Value(std::string_view{ str }) {}
 #endif
-
 
 #ifdef EXP_HAS_STRING_VIEW
 Value::Value(const std::string_view &str) {
@@ -85,7 +82,7 @@ Value::Value(const string &str) {
             error_messages += "Arithmetic error: Number too large! ";
             return;
         }
-        size_t pos_of_not_zero;
+        size_t pos_of_not_zero{};
         // remove all suffix zero
         if (std::all_of(right.begin(), right.end(), [](char c) { return c == '0'; })) {
 #ifdef EXP_HAS_STRING_VIEW
@@ -94,9 +91,10 @@ Value::Value(const string &str) {
             right.clear();
 #endif
 
-        } else if ((pos_of_not_zero = right.find_last_not_of("0")) != string::npos) {
+        } else if (!right.empty()
+                   && (pos_of_not_zero = right.find_last_not_of('0')) != string::npos) {
 #ifdef EXP_HAS_STRING_VIEW
-            right.remove_suffix(pos_of_not_zero + 1);
+            right.remove_suffix(right.length() - (pos_of_not_zero + 1));
 #else
             right.erase(pos_of_not_zero + 1);
 #endif
@@ -108,7 +106,7 @@ Value::Value(const string &str) {
 
 
 #ifdef EXP_HAS_STRING_VIEW
-            int64_t num;
+            int64_t num{};
             std::from_chars(left.data(), left.data() + left.size(), num);
 #else
             auto num        = std::stol(left);
@@ -127,7 +125,7 @@ Value::Value(const string &str) {
 
 
 #ifdef EXP_HAS_STRING_VIEW
-            int64_t leftNumber, rightNumber;
+            int64_t leftNumber{}, rightNumber{};
             std::from_chars(left.data(), left.data() + left.size(), leftNumber);
             std::from_chars(right.data(), right.data() + right.size(), rightNumber);
 #else
@@ -157,7 +155,7 @@ Value::Value(const string &str) {
 
 
 #ifdef EXP_HAS_STRING_VIEW
-    int num;
+    int num{};
     std::from_chars(str.data(), str.data() + str.size(), num);
     *this = Value(Fraction(num, 1));
 #else
@@ -167,20 +165,6 @@ Value::Value(const string &str) {
 
     isInterger = true;
     return;
-}
-
-Value::Value(const Value &v) {
-    *this = v;
-}
-
-Value &Value::operator=(const Value &v) {
-    this->isDecimal      = v.isDecimal;
-    this->calculability  = v.calculability;
-    this->decValue       = v.decValue;
-    this->fracValue      = v.fracValue;
-    this->error_messages = v.error_messages;
-    this->isInterger     = v.isInterger;
-    return *this;
 }
 
 std::string Value::GetErrorMessage() const {
@@ -219,7 +203,7 @@ Value &Value::operate(const std::string &op, const Value &b) {
 #endif
 
 #ifdef EXP_HAS_STRING_VIEW
-Value &Value::operate(const std::string_view &op, const Value &b) {
+Value &Value::operate(std::string_view op, const Value &b) {
 #else
 Value &Value::operate(const std::string &op, const Value &b) {
 #endif
@@ -322,7 +306,7 @@ Value &Value::powv(const Value &z) {
 
 
 Value operator+(const Value &a, const Value &b) {
-    if (!a.calculability || !b.calculability) { return Value(); }
+    if (!a.calculability || !b.calculability) { return {}; }
     if (a.isDecimal || b.isDecimal) {
         return Value(a.decValue + b.decValue);
     } else {
@@ -332,7 +316,7 @@ Value operator+(const Value &a, const Value &b) {
 }
 
 Value operator-(const Value &a, const Value &b) {
-    if (!a.calculability || !b.calculability) { return Value(); }
+    if (!a.calculability || !b.calculability) { return {}; }
     if (a.isDecimal || b.isDecimal) {
         return Value(a.decValue - b.decValue);
     } else {
@@ -342,7 +326,7 @@ Value operator-(const Value &a, const Value &b) {
 }
 
 Value operator*(const Value &a, const Value &b) {
-    if (!a.calculability || !b.calculability) { return Value(); }
+    if (!a.calculability || !b.calculability) { return {}; }
     if (a.isDecimal || b.isDecimal) {
         return Value(a.decValue * b.decValue);
     } else {
@@ -352,7 +336,7 @@ Value operator*(const Value &a, const Value &b) {
 }
 
 Value operator/(const Value &a, const Value &b) {
-    if (!a.calculability || !b.IsCalculable()) { return Value(); }
+    if (!a.calculability || !b.IsCalculable()) { return {}; }
     if (a.isDecimal || b.isDecimal) {
         return Value(a.decValue / b.decValue);
     } else {
@@ -362,7 +346,7 @@ Value operator/(const Value &a, const Value &b) {
 }
 
 Value operator%(const Value &a, const Value &b) {
-    if (!a.calculability || !b.calculability) { return Value(); }
+    if (!a.calculability || !b.calculability) { return {}; }
     // must both be interger
     if (a.isInterger && b.isInterger) { return Value((int64_t)a.decValue % (int64_t)b.decValue); }
     Value temp{};
@@ -371,7 +355,7 @@ Value operator%(const Value &a, const Value &b) {
 }
 
 Value operator<<(const Value &a, const Value &b) {
-    if (!a.calculability || !b.calculability) { return Value(); }
+    if (!a.calculability || !b.calculability) { return {}; }
     // must both be interger
     if (a.isInterger && b.isInterger && b.decValue >= 0) {
         return Value((int64_t)a.decValue << (int64_t)b.decValue);
@@ -382,7 +366,7 @@ Value operator<<(const Value &a, const Value &b) {
 }
 
 Value operator>>(const Value &a, const Value &b) {
-    if (!a.calculability || !b.calculability) { return Value(); }
+    if (!a.calculability || !b.calculability) { return {}; }
     // must both be interger
     if (a.isInterger && b.isInterger && b.decValue >= 0) {
         return Value((int64_t)a.decValue >> (int64_t)b.decValue);
@@ -394,7 +378,7 @@ Value operator>>(const Value &a, const Value &b) {
 }
 
 Value operator&(const Value &a, const Value &b) {
-    if (!a.calculability || !b.calculability) { return Value(); }
+    if (!a.calculability || !b.calculability) { return {}; }
     // must both be interger
     if (a.isInterger && b.isInterger) { return Value((int64_t)a.decValue & (int64_t)b.decValue); }
     Value temp{};
@@ -403,7 +387,7 @@ Value operator&(const Value &a, const Value &b) {
 }
 
 Value operator|(const Value &a, const Value &b) {
-    if (!a.calculability || !b.calculability) { return Value(); }
+    if (!a.calculability || !b.calculability) { return {}; }
     // must both be interger
     if (a.isInterger && b.isInterger) { return Value((int64_t)a.decValue | (int64_t)b.decValue); }
     Value temp{};
@@ -412,7 +396,7 @@ Value operator|(const Value &a, const Value &b) {
 }
 
 Value operator^(const Value &a, const Value &b) {
-    if (!a.calculability || !b.calculability) { return Value(); }
+    if (!a.calculability || !b.calculability) { return {}; }
     // must both be interger
     if (a.isInterger && b.isInterger) { return Value((int64_t)a.decValue ^ (int64_t)b.decValue); }
     Value temp{};
@@ -432,7 +416,7 @@ Value operator~(const Value &a) {
 }
 
 Value powv(const Value &a, const Value &b) {
-    if (!a.calculability || !b.calculability) { return Value(); }
+    if (!a.calculability || !b.calculability) { return {}; }
     if (a.decValue < 0 && !b.isInterger) {
         Value temp{};
         temp.error_messages += "Arithmetic error: Can't power a negative number by a non-integer! ";

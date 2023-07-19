@@ -45,7 +45,7 @@ struct Block {
 class ExpSolver {
 public:
     // Constructor to initialize the ExpSolver object
-    ExpSolver(void);
+    ExpSolver();
     /**
      * @brief use old expression resolve again, must use solveExp first
      * @note use getErrorMessages() get fail reason
@@ -91,7 +91,7 @@ private:
     std::vector<Function> functions;
 
     // Add predefined constants and functions
-    void AddPredefined(void);
+    void AddPredefined();
 
     // This is similar to lexical analysis in a compiler
     // Partition an expression into blocks of different types
