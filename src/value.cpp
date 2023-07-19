@@ -162,7 +162,7 @@ Value::Value(const string &str) {
 
 #endif
 
-            int multiplier = pow(10.0, (floor)(log10(rightNumber)) + 1.0);
+            int multiplier = pow(10.0, right.length());
             // leftNumber * multiplier must less than int32_t max
             // almost 2^16 / 2
             *this = Value(Fraction(leftNumber * multiplier + rightNumber, multiplier));
@@ -238,7 +238,8 @@ string Value::GetValueStr() const {
         return std::to_string(fracValue.up);
     } else {
         std::ostringstream oss;
-        oss << std::setprecision(32) << std::noshowpoint << decValue;
+        // Keep 6 digits after the decimal point
+        oss << std::setprecision((floor)(log10(decValue)) + 7) << std::noshowpoint << decValue;
         return oss.str();
     }
 }
