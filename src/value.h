@@ -105,6 +105,9 @@ private:
     Value &operate(std::string_view op, const Value &b);
 #endif
 
+    void fractionInit(const Fraction&);
+    void doubelInit(double);
+
     Value &operate(const std::string &op, const Value &b);
 
     std::string GetErrorMessage() const;
