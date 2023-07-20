@@ -52,7 +52,8 @@ public:
                           || std::is_same<int64_t, T>() || std::is_same<uint64_t, T>()
                           || std::is_same<uint16_t, T>() || std::is_same<int16_t, T>(),
                       "unsupported type");
-
+                      
+        isInterger    = true;
         isDecimal     = true;
         fracValue     = Fraction();
         decValue      = static_cast<double>(dv);
@@ -105,7 +106,7 @@ private:
     Value &operate(std::string_view op, const Value &b);
 #endif
 
-    void fractionInit(const Fraction&);
+    void fractionInit(const Fraction &);
     void doubelInit(double);
 
     Value &operate(const std::string &op, const Value &b);

@@ -34,6 +34,15 @@ TEST_CASE("Simple expression") {
     CHECK(exp.SolveExp("sqrt(9)").GetValueDouble() == 3);
     CHECK(exp.SolveExp("log(100)").GetValueDouble() == 2);
     CHECK(exp.SolveExp("abs(-2)").GetValueDouble() == 2);
+    CHECK(exp.SolveExp("2+0.02").GetValueDouble() == Approx(2.02));
+    CHECK(exp.SolveExp("2+0.0200").GetValueDouble() == Approx(2.02));
+    CHECK(exp.SolveExp("2+0.00002").GetValueDouble() == Approx(2.00002));
+    CHECK(exp.SolveExp("2+0.0000002").GetValueDouble() == Approx(2));
+    CHECK(exp.SolveExp("5.66666+9.333333").GetValueDouble() == Approx(14.999993));
+    CHECK(exp.SolveExp("9999.9999*9999.9999").GetValueDouble() == Approx(99999998));
+    CHECK(exp.SolveExp("9999.9999*7777.7777").GetValueDouble() == Approx(77777776.22222223));
+    CHECK(exp.SolveExp("99999.9999*77777.7777").GetValueDouble() == Approx(7777777762.222222));
+    
 }
 
 TEST_CASE("Wrong expression") {
