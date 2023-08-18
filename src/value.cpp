@@ -265,7 +265,7 @@ string Value::GetValueStr() const {
     } else {
         std::ostringstream oss;
         // Keep 6 digits after the decimal point
-        oss << std::setprecision((floor)(log10(decValue)) + 7) << std::noshowpoint << decValue;
+        oss << std::setprecision((floor)(log10(decValue)) + 7) << std::noshowpoint << std::fixed << decValue;
         return oss.str();
     }
 }
