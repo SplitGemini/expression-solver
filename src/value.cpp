@@ -264,8 +264,14 @@ string Value::GetValueStr() const {
         return std::to_string(fracValue.up);
     } else {
         std::ostringstream oss;
+        auto               precision = floor((log10(decValue))) + 7;
+        if (std::isnan(precision)) {
+            precision = 6;
+        } else if (std::isinf(decValue)) {
+            return "INF";
+        }
         // Keep 6 digits after the decimal point
-        oss << std::setprecision((floor)(log10(decValue)) + 7) << std::noshowpoint << std::fixed << decValue;
+        oss << std::setprecision(precision) << std::noshowpoint << std::fixed << decValue;
         return oss.str();
     }
 }
