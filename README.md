@@ -24,17 +24,17 @@ output = exp.SolveExp("0.5+1/3") // will be 0.833333
 output = exp.SolveExp("floor(ln(exp(e))+cos(2*pi))") // will be 3
 
 // use constant value
-exp.AddOrEditConstant("x", 10);
-exp.AddOrEditConstant("y", "20");
+exp.UpdateVariable("x", 10);
+exp.UpdateVariable("y", "20");
 output = exp.SolveExp("x+y") // will be 30
 
 // edit constant
-exp.AddOrEditConstant("x", 20);
-exp.AddOrEditConstant("y", "30");
+exp.UpdateVariable("x", 20);
+exp.UpdateVariable("y", "30");
 output = exp.ResolveExp() // will be 50
 
 // use old value
-exp.AddOrEditConstant("old_value", output);
+exp.UpdateVariable("old_value", output);
 output = exp.SolveExp("old_value - 10") // will be 40
 
 

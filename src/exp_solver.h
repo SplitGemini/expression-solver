@@ -67,15 +67,15 @@ public:
      * @note use getErrorMessages() get fail reason
      * @example
      * ExpSolver exp;
-     * exp.addOrEditConstant("test", 10);
+     * exp.UpdateVariable("test", 10);
      * auto output = exp.solveExp("test + 10"); // output will be 20
-     * exp.addOrEditConstant("test", 20);
+     * exp.UpdateVariable("test", 20);
      * output = exp.resolveExp(); // output will be 30
      * @param name  name to set
      * @param value value of constant
      * @return true
      */
-    bool AddOrEditConstant(const std::string &name, const Value &value);
+    bool UpdateVariable(const std::string &name, const Value &value);
 
 private:
     std::string        expression;

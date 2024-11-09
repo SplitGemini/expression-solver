@@ -14,6 +14,7 @@ fraction or decimal format.
 #pragma once
 #include <iostream>
 #include <string>
+#include <cstdint>
 #include "exp_config.h"
 
 namespace exp_solver

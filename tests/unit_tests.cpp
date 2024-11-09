@@ -92,18 +92,18 @@ TEST_CASE("Complex expression") {
     CHECK(exp.SolveExp("f l o o r ( l n ( e x p ( e ) ) + c o s (  2*  pi  ) )").GetValueDouble()
           == 3);
 
-    // constant
-    exp.AddOrEditConstant("x", 1);
-    exp.AddOrEditConstant("y", 2);
+    // variables
+    exp.UpdateVariable("x", 1);
+    exp.UpdateVariable("y", 2);
     CHECK(exp.SolveExp("x+y*x/y").GetValueDouble() == 2);
-    exp.AddOrEditConstant("x", 3);
-    exp.AddOrEditConstant("y", 4);
+    exp.UpdateVariable("x", 3);
+    exp.UpdateVariable("y", 4);
     CHECK(exp.SolveExp("(x+y)*x+y").GetValueDouble() == 25);
-    exp.AddOrEditConstant("x", 5);
-    exp.AddOrEditConstant("y", 6);
+    exp.UpdateVariable("x", 5);
+    exp.UpdateVariable("y", 6);
     CHECK(exp.ResolveExp().GetValueDouble() == 61);
 
-    exp.AddOrEditConstant("a1", 6);
+    exp.UpdateVariable("a1", 6);
     CHECK(exp.SolveExp("a1 + 1").GetValueDouble() == 7);
 }
 

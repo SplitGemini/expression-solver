@@ -113,18 +113,18 @@ std::string ExpSolver::GetErrorMessages() const {
 }
 
 
-bool ExpSolver::AddOrEditConstant(const std::string &name, const Value &value) {
+bool ExpSolver::UpdateVariable(const std::string &name, const Value &value) {
     if (!value.IsCalculable()) {
         error_messages << value.GetErrorMessage();
         return false;
     }
-    for (auto &constant : constants) {
-        if (name.compare(constant.name) == 0) {
-            constant.value = value;
+    for (auto &variable : variables) {
+        if (name.compare(variable.name) == 0) {
+            variable.value = value;
             return true;
         }
     }
-    constants.push_back(Variable(name, value));
+    variables.push_back(Variable(name, value));
     return true;
 }
 
@@ -137,7 +137,6 @@ bool ExpSolver::AddOrEditConstant(const std::string &name, const Value &value) {
 void ExpSolver::AddPredefined() {
     constants.push_back(Variable("e", Value(M_E)));
     constants.push_back(Variable("pi", Value(M_PI)));
-    // constants.push_back(Variable("ans", Value()));
     functions.push_back(Function("sin", std::sin));
     functions.push_back(Function("cos", std::cos));
     functions.push_back(Function("tan", std::tan));
@@ -344,17 +343,7 @@ Value ExpSolver::CalculateExp(const string &exp, int startBlock, int endBlock) {
         else if (blocks[i].type == Constant) {
             for (auto &constant : constants) {
                 if (blockStr == constant.name) {
-                    // If constant doesn't have a value
-                    // that means that 'ans' is not defined
-                    if (!constant.value.IsCalculable()) {
-                        error_messages
-                            << "Bad access: \"" << constant.name
-                            << "\" not defined currently! cuz: " << constant.value.GetErrorMessage()
-                            << std::endl;
-                        return {};
-                    } else {
-                        values.push(constant.value);
-                    }
+                    values.push(constant.value);
                     break;
                 }
             }
