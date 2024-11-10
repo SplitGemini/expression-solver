@@ -78,7 +78,7 @@ void Value::fractionInit(const Fraction &fv) {
     isInterger    = (fv.down == 1 || fv.up == 0);
 }
 
-void Value::doubelInit(double dv) {
+void Value::doubleInit(double dv) {
     if (dv == (double)int64_t(dv)) {
         isInterger     = true;
         fracValue.up   = (int64_t)dv;
@@ -98,11 +98,11 @@ Value::Value(Fraction fv) {
 }
 
 Value::Value(double dv) {
-    doubelInit(dv);
+    doubleInit(dv);
 }
 
 #ifdef EXP_HAS_STRING_VIEW
-Value::Value(const string &str) : Value(std::string_view{ str }) {}
+Value::Value(const std::string &str): Value(std::string_view{ str }) {}
 #endif
 
 #ifdef EXP_HAS_STRING_VIEW
@@ -217,7 +217,7 @@ Value::Value(const string &str) {
                 return;
             }
 
-            doubelInit(value);
+            doubleInit(value);
             return;
         }
     }

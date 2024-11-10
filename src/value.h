@@ -14,6 +14,7 @@ fraction or decimal format.
 #pragma once
 #include <iostream>
 #include <string>
+#include <type_traits>
 #include <cstdint>
 #include "exp_config.h"
 
@@ -41,19 +42,16 @@ public:
     Value &operator=(Value &&)      = default;
 
 #if defined(EXP_HAS_STRING_VIEW)
-    explicit Value(const std::string_view &str);
+    Value(const std::string_view &str);
+    Value(const std::string &str);
+#else
+    Value(const std::string &str);
 #endif
-    explicit Value(const std::string &str);
     explicit Value(Fraction fv);
     explicit Value(double dv);
 
-    template <typename T>
-    inline Value(T dv) {
-        static_assert(std::is_same<int32_t, T>() || std::is_same<uint32_t, T>()
-                          || std::is_same<int64_t, T>() || std::is_same<uint64_t, T>()
-                          || std::is_same<uint16_t, T>() || std::is_same<int16_t, T>(),
-                      "unsupported type");
-                      
+    template <typename T, typename std::enable_if<std::is_integral<T>::value, T>::type* = nullptr>
+    inline Value(T dv) {         
         isInterger    = true;
         isDecimal     = true;
         fracValue     = Fraction();
@@ -108,7 +106,7 @@ private:
 #endif
 
     void fractionInit(const Fraction &);
-    void doubelInit(double);
+    void doubleInit(double);
 
     Value &operate(const std::string &op, const Value &b);
 
