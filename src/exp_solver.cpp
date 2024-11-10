@@ -38,9 +38,8 @@ ExpSolver::ExpSolver() {
     AddPredefined();
 }
 
-ExpSolver::ExpSolver(const std::string &exp)
+void ExpSolver::SetExp(const std::string &exp)
 {
-    AddPredefined();
     expression = exp;
     PreprocessExp();
 }

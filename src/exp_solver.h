@@ -47,8 +47,8 @@ public:
     // Constructor to initialize the ExpSolver object
     ExpSolver();
 
-    // Constructor to initialize the ExpSolver object
-    ExpSolver(const std::string &exp);
+    // set expression
+    void SetExp(const std::string &exp);
 
     /**
      * @brief use old expression resolve again, must use solveExp first
