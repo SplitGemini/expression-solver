@@ -38,10 +38,15 @@ ExpSolver::ExpSolver() {
     AddPredefined();
 }
 
+ExpSolver::ExpSolver(const std::string &exp)
+{
+    AddPredefined();
+    expression = exp;
+    PreprocessExp();
+}
 
 Value ExpSolver::ResolveExp() {
     if (expression.empty()) {
-        error_messages << "not solve a expression first\n";
         return {};
     }
     error_messages.clear();
@@ -67,35 +72,17 @@ Value ExpSolver::SolveExp(const string &input) {
     error_messages.clear();
     error_messages.str("");
 
-    // Discard all spaces in the expression
-    auto exp = input;
-    exp.erase(std::remove_if(exp.begin(), exp.end(), ::isspace), exp.end());
+    expression = input;
+    PreprocessExp();
 
-    // Deal with no right-hand-side input
-    if (exp.length() == 0) {
-        error_messages << "Invalid expression! " << std::endl;
-        blocks.clear();
-        return {};
-    }
-
-    // Deal with negative signs in the expression
-    DealWithNegativeSign(exp);
-
-    // Group the expression into substrings
-    // and calculate the bracket level of each substring
-    bool groupSucceed = GroupExp(exp);
-
-    if (!groupSucceed) {
-        blocks.clear();
-        error_messages << "Calculation aborted. " << std::endl;
+    if (expression.empty()) {
         return {};
     }
 
     // Recursively solve the expression
-    Value result = CalculateExp(exp, 0, blocks.size());
+    Value result = CalculateExp(expression, 0, blocks.size());
 
     if (result.IsCalculable()) {
-        expression = exp;
         // Create output
         return result;
     } else {
@@ -148,6 +135,34 @@ void ExpSolver::AddPredefined() {
     functions.push_back(Function("ln", std::log));
     functions.push_back(Function("log", std::log10));
     functions.push_back(Function("abs", std::abs));
+}
+
+void ExpSolver::PreprocessExp()
+{
+     // Discard all spaces in the expression
+    auto exp = expression;
+    expression.clear();
+    exp.erase(std::remove_if(exp.begin(), exp.end(), ::isspace), exp.end());
+
+    // Deal with no right-hand-side input
+    if (exp.length() == 0) {
+        error_messages << "Invalid expression! " << std::endl;
+        blocks.clear();
+        return;
+    }
+
+    // Deal with negative signs in the expression
+    DealWithNegativeSign(exp);
+
+    // Group the expression into substrings
+    // and calculate the bracket level of each substring
+    bool groupSucceed = GroupExp(exp);
+
+    if (!groupSucceed) {
+        blocks.clear();
+        error_messages << "Calculation aborted. " << std::endl;
+    }
+    expression = exp;
 }
 
 

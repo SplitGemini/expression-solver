@@ -46,6 +46,10 @@ class ExpSolver {
 public:
     // Constructor to initialize the ExpSolver object
     ExpSolver();
+
+    // Constructor to initialize the ExpSolver object
+    ExpSolver(const std::string &exp);
+
     /**
      * @brief use old expression resolve again, must use solveExp first
      * @note use getErrorMessages() get fail reason
@@ -92,6 +96,8 @@ private:
 
     // Add predefined constants and functions
     void AddPredefined();
+
+    void PreprocessExp();
 
     // This is similar to lexical analysis in a compiler
     // Partition an expression into blocks of different types
